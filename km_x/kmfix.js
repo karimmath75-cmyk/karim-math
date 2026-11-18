@@ -182,3 +182,11 @@
  setInterval(mark,1500);
  window.addEventListener('pointerdown',e=>{const c=e.target&&e.target.closest&&e.target.closest('.card');window.__kmLastFree=!!(c&&c.dataset.kmfree==='1')},true);
 })();
+
+/* km-nav: أشرطة التبويب ظاهرة كلها على الحاسوب، وقابلة للسحب على الهاتف */
+(function(){
+ const s=document.createElement('style');
+ s.textContent='@media (min-width:700px){nav{flex-wrap:wrap!important;overflow:visible!important;row-gap:.35rem}}@media (max-width:699px){nav{scrollbar-width:thin!important;padding-bottom:4px}nav::-webkit-scrollbar{height:4px;display:block}nav::-webkit-scrollbar-thumb{background:#f97316;border-radius:4px}}#km-float{bottom:84px!important}';
+ document.head.appendChild(s);
+ document.addEventListener('wheel',function(e){const n=e.target.closest&&e.target.closest('nav');if(n&&n.scrollWidth>n.clientWidth&&Math.abs(e.deltaY)>Math.abs(e.deltaX)){n.scrollLeft+=(document.dir==='rtl'?-1:1)*e.deltaY;e.preventDefault()}},{passive:false});
+})();
