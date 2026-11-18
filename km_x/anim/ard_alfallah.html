@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>عرض متحرك – أرض الفلاح – Karim Math</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f172a;--panel:#13304a;--card:#1c4560;--yel:#f5c34f;--txt:#f1f5f9;--mut:#94a3b8;--wheat:#e9b949;--barley:#7cc576;--veg:#5aa7e8}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Cairo',sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;max-width:560px;margin:auto;
+ background:linear-gradient(rgba(148,163,184,.08) 1px,transparent 1px) 0 0/40px 40px,linear-gradient(90deg,rgba(148,163,184,.08) 1px,transparent 1px) 0 0/40px 40px,var(--bg)}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px}
+header h1{font-size:15px;font-weight:600;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn-close{background:var(--yel);color:#1e293b;border:0;border-radius:14px;padding:6px 14px;font:800 15px 'Cairo';cursor:pointer;flex:none}
+.bars{display:flex;gap:6px;padding:4px 16px 0}
+.bars i{flex:1;height:5px;border-radius:4px;background:#334155;transition:background .4s}
+.bars i.on{background:var(--yel)} .bars i.done{background:#8a7a3e}
+.meta{display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.meta .cnt{color:var(--mut);font-size:17px;display:flex;align-items:center;gap:12px}
+.fs{background:none;border:0;color:var(--mut);cursor:pointer;font-size:20px}
+.tag{background:rgba(245,195,79,.15);color:var(--yel);border-radius:20px;padding:3px 14px;font-weight:800;font-size:15px}
+#stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:6px 16px;min-height:0}
+.box{width:100%;background:var(--card);border:1.5px solid #2b5878;border-radius:18px;padding:12px 14px;text-align:center;font-size:21px;font-weight:600;direction:ltr;animation:pop .45s ease both}
+.box.ar{direction:rtl}
+.box b{color:var(--yel)}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;margin:0 3px;font-size:.9em}
+.fr>span:first-child{border-bottom:2px solid currentColor;padding:0 3px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;width:min(78vw,330px);aspect-ratio:5/3;padding:6px;background:#0b2033;border-radius:12px;border:2px dashed #475569}
+.grid div{border-radius:5px;background:#1e3a52;transition:background .5s,transform .5s}
+.grid .w{background:var(--wheat)} .grid .b{background:var(--barley)} .grid .v{background:var(--veg)}
+.grid .pulse{animation:pl 1s ease infinite alternate}
+@keyframes pl{to{transform:scale(.86)}}
+.legend{display:flex;gap:14px;font-size:14px;color:#cbd5e1;flex-wrap:wrap;justify-content:center}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-left:5px;vertical-align:-1px;background:var(--c)}
+.sheet{background:var(--panel);border-radius:30px 30px 0 0;padding:20px 20px 16px;min-height:38%;display:flex;flex-direction:column}
+.sheet h2{font-size:25px;font-weight:800;margin-bottom:10px}
+.lines{flex:1;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.line{border-right:4px solid var(--yel);padding:2px 12px 2px 0;font-size:18px;line-height:1.75;animation:pop .4s ease both}
+.line.old{border-color:#475569;color:var(--mut)}
+.line.ask{background:#2e4a52;border-radius:16px;padding:10px 14px;font-weight:800;border-right-width:5px}
+.nav{display:flex;gap:12px;margin-top:12px}
+.next{flex:1;background:var(--yel);color:#1e293b;border:0;border-radius:22px;padding:12px;font:800 20px 'Cairo';cursor:pointer}
+.prev{width:64px;background:none;border:2px solid #2b5878;border-radius:22px;color:var(--txt);font-size:24px;cursor:pointer}
+.prev:disabled{opacity:.3}
+.lock{position:absolute;inset:0;background:rgba(15,23,42,.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center}
+.lock.show{display:flex}
+.lock input{font:600 18px 'Cairo';padding:10px;border-radius:12px;border:0;width:220px;text-align:center}
+.brand{font-size:12px;color:#64748b;text-align:center;padding-top:6px;direction:ltr}
+</style>
+</head>
+<body>
+<div id="app">
+ <header><h1>🎞️ عرض متحرك – أرض الفلاح (3 متوسط)</h1><button class="btn-close" onclick="try{parent.kmxClose()}catch(e){history.back()}">✕ إغلاق</button></header>
+ <div class="bars" id="bars"></div>
+ <div class="meta"><div class="cnt"><button class="fs" id="fs" title="ملء الشاشة">⛶</button><span id="cnt"></span></div><span class="tag" id="tag"></span></div>
+ <div id="stage"></div>
+ <div class="sheet">
+  <h2 id="title"></h2>
+  <div class="lines" id="lines"></div>
+  <div class="nav"><button class="prev" id="prev">›</button><button class="next" id="next"></button></div>
+  <div class="brand">Karim Math</div>
+ </div>
+ <div class="lock" id="lock">
+  <div style="font-size:44px">🔒</div>
+  <div style="font-size:20px;font-weight:800">بقية الحل للمشتركين</div>
+  <button class="next" style="flex:none;width:220px" id="unlock">🔑 تفعيل الاشتراك</button>
+  <button class="prev" style="width:220px" onclick="i=0;step=0;render()">↩ العودة للبداية</button>
+ </div>
+</div>
+<script>
+const F=(a,b)=>`<span class="fr"><span>${a}</span><span>${b}</span></span>`;
+// grid: 15 cells -> 6 wheat, 5 barley, 4 veg
+const G=(w,b,v,pulse)=>{let h='<div class="grid">';for(let i=0;i<15;i++){let c=i<w?'w':i<w+b?'b':i<w+b+v?'v':'';if(pulse&&c==='v')c+=' pulse';h+=`<div class="${c}"></div>`}return h+'</div>'};
+const L=`<div class="legend"><span style="--c:var(--wheat)">قمح</span><span style="--c:var(--barley)">شعير</span><span style="--c:var(--veg)">خضر</span></div>`;
+const S=[
+ {tag:'الوضعية',title:'أرض الفلاح',vis:[G(0,0,0)],lines:['زرع فلاح '+F(2,5)+' من أرضه قمحًا و'+F(1,3)+' منها شعيرًا، وخصّص الباقي للخضر.','اضغط «الخطوة التالية» أو اسحب الشاشة للانتقال.']},
+ {tag:'المطلوب',title:'ماذا نبحث؟',vis:[G(0,0,0)],lines:['① نقارن '+F(2,5)+' و'+F(1,3)+'.','② نحسب جزء القمح والشعير معًا.','③ نستنتج جزء الخضر ومقلوبه.','④ نحسب عدد أحواض الخضر (كل حوض = '+F(1,15)+' من الأرض).'],ask:true},
+ {tag:'المقارنة',title:'توحيد المقامات',vis:[G(6,0,0),`<div class="box">${F(2,5)} = ${F(6,15)} &nbsp;&nbsp; ${F(1,3)} = ${F(5,15)}</div>`],lines:['المضاعف المشترك الأصغر للعددين 5 و 3 هو <b>15</b>، فنقسّم الأرض إلى 15 جزءًا متقايسًا.','القمح: 6 أجزاء من 15.','الشعير: 5 أجزاء من 15.']},
+ {tag:'المقارنة',title:'أيّ المحصولين أكبر؟',vis:[G(6,5,0),L,`<div class="box">${F(6,15)} &gt; ${F(5,15)} ⇒ ${F(2,5)} &gt; ${F(1,3)}</div>`],lines:['بما أن 6 &gt; 5 فإن '+F(2,5)+' &gt; '+F(1,3)+'.','<b>القمح يشغل مساحة أكبر.</b>']},
+ {tag:'الجمع',title:'القمح والشعير معًا',vis:[G(6,5,0),L,`<div class="box">${F(6,15)} + ${F(5,15)} = <b>${F(11,15)}</b></div>`],lines:['نجمع البسطين ونحتفظ بالمقام المشترك.','الجزء المزروع قمحًا وشعيرًا هو '+F(11,15)+' من الأرض.']},
+ {tag:'الطرح',title:'جزء الخضر',vis:[G(6,5,4,true),L,`<div class="box">1 − ${F(11,15)} = ${F(15,15)} − ${F(11,15)} = <b>${F(4,15)}</b></div>`],lines:['الأرض كاملة تمثّل 1 = '+F(15,15)+'.','جزء الخضر = '+F(4,15)+'.']},
+ {tag:'المقلوب',title:'مقلوب الكسر',vis:[`<div class="box">${F(4,15)} ⟶ <b>${F(15,4)}</b></div>`,`<div class="box">${F(4,15)} × ${F(15,4)} = 1</div>`],lines:['مقلوب كسر نتحصّل عليه بتبديل البسط والمقام.','نتحقق: جداء العدد ومقلوبه يساوي 1.'],locked:true},
+ {tag:'القسمة',title:'عدد الأحواض',vis:[G(6,5,4,true),`<div class="box">${F(4,15)} ÷ ${F(1,15)} = ${F(4,15)} × 15 = <b>4</b></div>`],lines:['القسمة على كسر = الضرب في مقلوبه.','<b>عدد أحواض الخضر هو 4 أحواض.</b>'],ask:true}
+];
+let i=0,step=0;function P(){try{return window.parent!==window?window.parent:null}catch(e){return null}}
+function isLk(){try{const k=P().__km20;return k.closed()&&(k.cfg.locked||[]).includes('sol')}catch(e){return false}}
+let unlocked=!isLk();
+const $=id=>document.getElementById(id);
+$('bars').innerHTML=S.map(()=>'<i></i>').join('');
+function render(){
+ const s=S[i];
+ if(s.locked&&!unlocked){$('lock').classList.add('show');}else $('lock').classList.remove('show');
+ [...$('bars').children].forEach((b,k)=>b.className=k<i?'done':k===i?'on':'');
+ $('cnt').textContent=`${S.length} / ${i+1}`;
+ $('tag').textContent=s.tag;$('title').innerHTML=s.title;
+ $('stage').innerHTML=s.vis.slice(0,Math.min(s.vis.length,step+1)).join('');
+ const n=step+1;
+ $('lines').innerHTML=s.lines.slice(0,n).map((t,k)=>`<div class="line${k<n-1?' old':''}${s.ask&&k===n-1&&n===s.lines.length&&k>0?' ask':''}">${t}</div>`).join('');
+ const lastStep=step>=s.lines.length-1;
+ $('next').innerHTML=lastStep?(i===S.length-1?'↺ إعادة العرض':'التالي ‹'):'الخطوة التالية ‹';
+ $('prev').disabled=i===0&&step===0;
+}
+function next(){const s=S[i];if(step<s.lines.length-1)step++;else if(i<S.length-1){i++;step=0}else{i=0;step=0}render()}
+function prev(){if(step>0)step--;else if(i>0){i--;step=S[i].lines.length-1}render()}
+$('next').onclick=next;$('prev').onclick=prev;
+$('fs').onclick=()=>{const d=document.documentElement;document.fullscreenElement?document.exitFullscreen():d.requestFullscreen&&d.requestFullscreen()};
+$('unlock').onclick=()=>{try{P().kmAct();P().kmxClose&&P().kmxClose()}catch(e){}};
+document.onkeydown=e=>{if(e.key==='ArrowLeft'||e.key===' ')next();if(e.key==='ArrowRight')prev()};
+let x0=null;document.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)(dx<0?next:prev)();x0=null},{passive:true});
+render();
+</script>
+</body>
+</html>
